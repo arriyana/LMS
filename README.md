@@ -1,1 +1,2 @@
 # LMS
+Lab Management System
