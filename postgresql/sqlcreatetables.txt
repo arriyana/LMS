@@ -1,0 +1,115 @@
+CREATE TABLE role (
+role_id            serial      PRIMARY KEY,
+namel              varchar(32)  NOT NULL,
+def_rights         integer      NOT NULL
+
+);
+
+CREATE TABLE users (
+user_id            serial       PRIMARY KEY,
+email              varchar(320) NOT NULL UNIQUE,
+first_name         varchar(32),
+last_name          varchar(32),
+last_online        bigint,
+reg_date           bigint       NOT NULL,
+password           varchar(20)  NOT NULL,
+is_active          boolean      NOT NULL,
+penalty_score      integer      NOT NULL,
+rights             integer      NOT NULL,
+role_id            integer      REFERENCES role(role_id),
+receive_email      boolean      NOT NULL DEFAULT TRUE
+
+);
+
+CREATE TABLE room(
+
+room_id            serial       PRIMARY KEY,
+number             varchar(10)  NOT NULL,
+user_id            integer      NOT NULL REFERENCES users(user_id)
+
+);
+
+CREATE TABLE task_status (
+
+task_status_id     serial       PRIMARY KEY ,
+namel              varchar(32)  NOT NULL
+
+); 
+
+CREATE TABLE task_type (
+
+task_type_id       serial       PRIMARY KEY,
+namel              varchar(32)  NOT NULL
+
+);
+
+CREATE TABLE equipment_type(
+
+eqpt_type_id       serial       PRIMARY KEY,
+namel              varchar(32)  NOT NULL
+
+);
+
+CREATE TABLE equipment (
+
+eqpt_id            serial       PRIMARY KEY,
+local_num          varchar(32),
+is_decommissioned  boolean      NOT NULL DEFAULT FALSE,
+eqpt_type_id       integer      NOT NULL REFERENCES equipment_type(eqpt_type_id),
+room_id            integer      NOT NULL REFERENCES room(room_id)
+);
+
+CREATE TABLE task (
+
+task_id            serial       PRIMARY KEY,
+parent_id          integer      REFERENCES task(task_id),
+task_status_id     integer      NOT NULL REFERENCES task_status(task_status_id),
+task_type_id       integer      NOT NULL REFERENCES task_type(task_type_id),
+eqpt_id            integer      NOT NULL REFERENCES equipment(eqpt_id),
+user_id            integer      NOT NULL REFERENCES users(user_id),
+staff_id           integer      NOT NULL REFERENCES users(user_id),
+creation_time      bigint       NOT NULL,
+completion_time    bigint,
+urgency            boolean      NOT NULL DEFAULT FALSE,
+visibility         boolean      NOT NULL DEFAULT FALSE
+
+);
+
+
+CREATE TABLE comment(
+
+cmnt_id            serial       PRIMARY KEY,
+text               text         NOT NULL,
+date               bigint       NOT NULL,
+visibility         integer      DEFAULT 0,
+user_id            integer      NOT NULL REFERENCES users(user_id),
+task_id            integer      NOT NULL REFERENCES task(task_id)
+);
+
+CREATE TABLE log(
+
+log_id             serial       PRIMARY KEY,
+action_type        integer      NOT NULL,
+date               bigint       NOT NULL,
+expression         varchar(500) NOT NULL,
+user_id            integer      NOT NULL REFERENCES users(user_id)
+
+);
+
+CREATE TABLE ban_time(
+
+ban_id             serial       PRIMARY KEY,
+penalty_score      integer      NOT NULL,
+date               bigint       NOT NULL,
+user_id            integer      NOT NULL REFERENCES users(user_id)
+
+);
+
+CREATE TABLE unconfirmed(
+
+unconf_id          serial       PRIMARY KEY,
+hash               varchar(32)  NOT NULL,
+email              varchar(320) NOT NULL REFERENCES users(email),
+exp_date           bigint       NOT NULL,
+type               integer      NOT NULL
+);
